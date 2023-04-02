@@ -103,12 +103,12 @@ void do_something(Array<snappy::FileBlock, kNumBlocks> *fm_array_ptr,
   std::random_device rd;
   std::mt19937 gen(rd());
   zipf_table_distribution<> zipf(100);
-  for (int i = 0; i < 100; i++)
-    printf("draw %d %d\n", i, zipf(gen));
 
+  uint64_t t=0;
   for (uint64_t i = 0; i < kNumBlocks; ++i) {
 //    if (i % 4 == 3) continue; // 1 1 2
-    uint64_t t=i%100;
+    t=zip(gen);
+    cout<<"t=%d"<<t<<endl;
     auto block = fm_array_ptr->read(t);
     DONT_OPTIMIZE(block);
     std::this_thread::sleep_for(std::chrono::microseconds(100));

@@ -9,6 +9,7 @@ extern "C" {
 #include "device.hpp"
 #include "helpers.hpp"
 #include "manager.hpp"
+#include "zipf.hpp"
 
 #include <algorithm>
 #include <chrono>
@@ -99,14 +100,28 @@ template<uint64_t kNumBlocks, bool TpAPI>
 void do_something(Array<snappy::FileBlock, kNumBlocks> *fm_array_ptr,
                   size_t input_length, std::string *compressed) {
 //  snappy::FarMemArraySource<kNumBlocks, TpAPI> reader(input_length, fm_array_ptr);
+  std::random_device rd;
+  std::mt19937 gen(rd());
+  zipf_table_distribution<> zipf(100);
+  for (int i = 0; i < 100; i++)
+    printf("draw %d %d\n", i, zipf(gen));
+
   for (uint64_t i = 0; i < kNumBlocks; ++i) {
 //    if (i % 4 == 3) continue; // 1 1 2
-    uint64_t m = i % 6;
-    if (m == 2 || m == 4 || m == 5) continue; // 1 2 3
-    auto block = fm_array_ptr->read(i);
+    uint64_t t=i%100;
+    auto block = fm_array_ptr->read(t);
     DONT_OPTIMIZE(block);
     std::this_thread::sleep_for(std::chrono::microseconds(100));
   }
+
+//   for (uint64_t i = 0; i < kNumBlocks; ++i) {
+// //    if (i % 4 == 3) continue; // 1 1 2
+//     uint64_t m = i % 6;
+//     if (m == 2 || m == 4 || m == 5) continue; // 1 2 3
+//     auto block = fm_array_ptr->read(i);
+//     DONT_OPTIMIZE(block);
+//     std::this_thread::sleep_for(std::chrono::microseconds(100));
+//   }
 }
 
 template<uint64_t kNumBlocks, bool TpAPI>
